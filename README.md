@@ -1,70 +1,184 @@
-# Getting Started with Create React App
+# Customer Service Portal
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+This is a simple CRUD (Create, Read, Update, Delete) application that manages customer records. The customer data includes:
 
-## Available Scripts
+- **First Name**
+- **Last Name**
+- **Email Address**
+- **Contact Number**
 
-In the project directory, you can run:
+This project uses **React** for the frontend, **Laravel** for the backend API, **XAMPP** for managing MySQL, and **Docker Compose** to manage the containerized environment for backend services.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
+The application includes the following CRUD operations for managing customer data:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Create a Customer**: Add a new customer with First Name, Last Name, Email, and Contact Number.
+- **Update a Customer**: Edit an existing customer's data.
+- **Delete a Customer**: Remove a customer from the system.
+- **List All Customers**: View all customers in a table.
+- **View a Customer**: View detailed information of a specific customer.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Technologies Used
 
-### `npm run build`
+- **Frontend**: React.js (JavaScript framework)
+- **Backend**: Laravel (PHP framework)
+- **Database**: MySQL (via XAMPP or Dockerized MySQL)
+- **Containerization**: Docker Compose
+- **UI**: Bootstrap (CSS framework)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Before you begin, ensure you have the following software installed:
 
-### `npm run eject`
+- **Docker** and **Docker Compose** (for managing containers)
+- **XAMPP** (for running MySQL locally, or use Dockerized MySQL)
+- **Node.js** and **npm** (for managing and running the React frontend)
+- **PHP** and **Composer** (for running Laravel)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Setup Instructions
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 1. Clone the Repository
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Clone this project to your local machine:
 
-## Learn More
+```bash
+git clone https://github.com/counter101/customer-management-app.git
+cd customer-management-app
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 2. Docker Setup (Optional but recommended)
 
-### Code Splitting
+The backend and MySQL database can run in Docker containers. Make sure you have Docker and Docker Compose installed on your machine.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 2.1.  Docker Compose Configuration
 
-### Analyzing the Bundle Size
+The docker-compose.yml file should be located in the root directory of your project. Ensure it includes configurations for the Laravel API, MySQL, and any other services you might need (like Redis for caching or MailHog for email testing).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+version: '3.8'
 
-### Making a Progressive Web App
+services:
+  app:
+    build: .
+    container_name: laravel_app
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - laravel
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+  db:
+    image: mysql:5.7
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: customer
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ''
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel
 
-### Advanced Configuration
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    networks:
+      - laravel
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+networks:
+  laravel:
+    driver: bridge
 
-### Deployment
+volumes:
+  mysql_data:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
+### 2.2.  Build and Start Docker Containers
+In the project root directory, run the following command to build and start the containers:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+***This command will start the following services:
+
+docker-compose up -d
+
+Laravel API: Running at http://localhost:8000
+MySQL Database: Running at localhost:3306
+phpMyAdmin: Running at http://localhost:8080 for MySQL management
+
+
+***If you want to view logs for the containers, run:
+
+docker-compose logs -f
+
+### 2.3.  Build and Start Docker Containers
+
+***To stop the containers:
+
+docker-compose down
+
+
+### 3. Laravel Backend Setup
+
+Once the Docker containers are up and running, follow these steps to set up Laravel:
+
+
+### 3.1 Install Dependencies
+
+docker-compose exec app bash
+composer install
+
+### 3.2 Set Up Environment File
+
+Make sure your .env file is configured correctly for the Docker services. The DB_HOST should be set to db (the service name in the Docker configuration).
+
+Run the following commands to set up the application key and database:
+
+php artisan key:generate
+php artisan migrate
+
+### 4. React Frontend Setup
+
+The frontend is a React application that communicates with the Laravel API.
+
+### 4.1 Install React Dependencies
+
+cd frontend
+npm install
+
+
+### 4.2 Run React Development Server
+npm start
+
+The frontend should be available at http://localhost:3000.
+
+
+
+API Endpoints
+Customer Endpoints
+
+GET /api/customers - Get a list of all customers
+GET /api/customers/{id}/edit - Get details of a specific customer
+POST /api/customers - Create a new customer
+PUT /api/customers/{id}/edit - Update an existing customer
+DELETE /api/customers/{id}/delete - Delete a customer
+
+UI/UX Design
+The frontend is built using React and styled with Bootstrap to provide a clean and responsive user interface for customer management.
+
